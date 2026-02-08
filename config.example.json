@@ -1,0 +1,13 @@
+{
+  "allowed_ips": ["YOUR_IP_HERE"],
+  "gui_apps": [
+    {"name": "ChatGPT", "bundle_id": "com.openai.chat"},
+    {"name": "Claude", "bundle_id": "com.anthropic.claudefordesktop"},
+    {"name": "Codex", "bundle_id": "com.openai.codex"}
+  ],
+  "cli_commands": [
+    {"cmd": "codex", "allowed_subcommands": ["update"]},
+    {"cmd": "claude", "allowed_subcommands": ["update"]}
+  ],
+  "check_interval": 30
+}
