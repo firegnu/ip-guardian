@@ -1,16 +1,26 @@
-"""External IP checking via ifconfig.me."""
+"""External IP checking with multi-source fallback."""
 
 import subprocess
 import threading
 import time
 
+from ip_guardian.config import resolve_ip_sources
+
 
 class IPChecker:
     """Checks and caches the external IP address."""
 
-    def __init__(self, allowed_ips, interval=30):
+    def __init__(
+        self,
+        allowed_ips,
+        interval=30,
+        ip_sources=None,
+        source_timeout=5,
+    ):
         self.allowed_ips = allowed_ips
         self.interval = interval
+        self.ip_sources = resolve_ip_sources(ip_sources)
+        self.source_timeout = source_timeout
         self.current_ip = None
         self.last_check = 0
         self.status = "unknown"  # "allowed", "blocked", "error"
@@ -18,13 +28,29 @@ class IPChecker:
         self._callbacks = []
 
     def fetch_ip(self):
-        """Fetch external IP via curl ifconfig.me."""
+        """Fetch external IP from configured sources with fallback."""
+        for source in self.ip_sources:
+            ip = self._fetch_from_source(source)
+            if ip:
+                return ip
+        return None
+
+    def _fetch_from_source(self, source):
+        """Fetch and validate IP from a single source."""
         try:
             result = subprocess.run(
-                ["curl", "-s", "--max-time", "5", "ifconfig.me"],
+                [
+                    "curl",
+                    "-fsS",
+                    "--max-time",
+                    str(self.source_timeout),
+                    source,
+                ],
                 capture_output=True,
                 text=True,
             )
+            if result.returncode != 0:
+                return None
             ip = result.stdout.strip()
             if ip and self._is_valid_ip(ip):
                 return ip

@@ -7,6 +7,12 @@ import sys
 
 CONFIG_DIR = os.path.expanduser("~/.ip_guardian")
 CONFIG_PATH = os.path.join(CONFIG_DIR, "config.json")
+DEFAULT_IP_SOURCES = (
+    "https://ifconfig.me/ip",
+    "https://api.ipify.org",
+    "https://ipv4.icanhazip.com",
+    "https://checkip.amazonaws.com",
+)
 
 
 def _get_bundled_config():
@@ -50,3 +56,15 @@ def save_config(config, path=None):
 def get_config_path():
     """Return the config file path."""
     return CONFIG_PATH
+
+
+def resolve_ip_sources(ip_sources):
+    """Return cleaned sources from config, or fallback defaults."""
+    if not ip_sources:
+        return list(DEFAULT_IP_SOURCES)
+    cleaned = [
+        source.strip()
+        for source in ip_sources
+        if isinstance(source, str) and source.strip()
+    ]
+    return cleaned or list(DEFAULT_IP_SOURCES)

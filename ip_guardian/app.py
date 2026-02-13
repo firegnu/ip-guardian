@@ -41,6 +41,7 @@ class IPGuardianApp(rumps.App):
         self.checker = IPChecker(
             self.config["allowed_ips"],
             self.config.get("check_interval", 30),
+            ip_sources=self.config.get("ip_sources"),
         )
         self.monitor = AppMonitor(self.config["gui_apps"], self.checker)
         self._setup_menu()
@@ -65,7 +66,11 @@ class IPGuardianApp(rumps.App):
         ]
 
     def _setup_cli_guard(self):
-        generate_wrappers(self.config["cli_commands"], self.config["allowed_ips"])
+        generate_wrappers(
+            self.config["cli_commands"],
+            self.config["allowed_ips"],
+            ip_sources=self.config.get("ip_sources"),
+        )
 
     def _setup_app_monitor(self):
         self.monitor.on_blocked(self._on_app_blocked)

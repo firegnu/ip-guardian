@@ -1,5 +1,11 @@
 {
   "allowed_ips": ["YOUR_IP_HERE"],
+  "ip_sources": [
+    "https://ifconfig.me/ip",
+    "https://api.ipify.org",
+    "https://ipv4.icanhazip.com",
+    "https://checkip.amazonaws.com"
+  ],
   "gui_apps": [
     {"name": "ChatGPT", "bundle_id": "com.openai.chat"},
     {"name": "Claude", "bundle_id": "com.anthropic.claudefordesktop"},

@@ -52,6 +52,12 @@ bash setup.sh
 ```json
 {
   "allowed_ips": ["YOUR_IP_HERE"],
+  "ip_sources": [
+    "https://ifconfig.me/ip",
+    "https://api.ipify.org",
+    "https://ipv4.icanhazip.com",
+    "https://checkip.amazonaws.com"
+  ],
   "gui_apps": [
     {"name": "ChatGPT", "bundle_id": "com.openai.chat"},
     {"name": "Claude", "bundle_id": "com.anthropic.claudefordesktop"}
@@ -67,6 +73,7 @@ bash setup.sh
 | 字段 | 说明 |
 |------|------|
 | `allowed_ips` | 允许的外部 IP 列表 |
+| `ip_sources` | 可选，外部 IP 探测地址列表（按顺序回退） |
 | `gui_apps` | 需要监控的 GUI 应用列表（`name` 用于通知显示，`bundle_id` 用于识别应用） |
 | `cli_commands` | 需要拦截的 CLI 命令（`allowed_subcommands` 中的子命令会跳过 IP 检查） |
 | `check_interval` | IP 检查间隔（秒） |
@@ -74,7 +81,9 @@ bash setup.sh
 获取你当前的外部 IP：
 
 ```bash
-curl ifconfig.me
+curl -fsS https://ifconfig.me/ip \
+  || curl -fsS https://api.ipify.org \
+  || curl -fsS https://ipv4.icanhazip.com
 ```
 
 查找应用的 Bundle ID：
