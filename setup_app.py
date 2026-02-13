@@ -1,6 +1,11 @@
 """py2app build script for IP Guardian."""
 
+import os
+import sys
+
 from setuptools import setup
+
+sys.setrecursionlimit(5000)
 
 APP = ["ip_guardian/app.py"]
 DATA_FILES = [
@@ -12,9 +17,16 @@ DATA_FILES = [
     ]),
     ("", ["config.json"]),
 ]
+
+LIBFFI_CANDIDATES = (
+    "/opt/anaconda3/lib/libffi.8.dylib",
+    "/usr/local/lib/libffi.8.dylib",
+)
+FRAMEWORKS = [path for path in LIBFFI_CANDIDATES if os.path.exists(path)]
+
 OPTIONS = {
     "argv_emulation": False,
-    "iconfile": None,
+    "iconfile": "icons/app.icns" if os.path.exists("icons/app.icns") else None,
     "plist": {
         "CFBundleName": "IP Guardian",
         "CFBundleDisplayName": "IP Guardian",
@@ -30,6 +42,13 @@ OPTIONS = {
         "AppKit",
         "Foundation",
     ],
+    "excludes": [
+        "numpy", "docutils", "setuptools", "pkg_resources",
+        "PIL", "matplotlib", "scipy", "pandas", "pytest",
+        "IPython", "jupyter", "notebook", "sphinx",
+        "black", "mypy", "pylint", "tkinter",
+    ],
+    "frameworks": FRAMEWORKS,
 }
 
 setup(
