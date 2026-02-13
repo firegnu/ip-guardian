@@ -3,6 +3,7 @@
 import subprocess
 import threading
 import time
+from urllib.parse import urlparse
 
 from ip_guardian.config import resolve_ip_sources
 
@@ -22,6 +23,7 @@ class IPChecker:
         self.ip_sources = resolve_ip_sources(ip_sources)
         self.source_timeout = source_timeout
         self.current_ip = None
+        self.current_source = None
         self.last_check = 0
         self.status = "unknown"  # "allowed", "blocked", "error"
         self._lock = threading.Lock()
@@ -32,8 +34,8 @@ class IPChecker:
         for source in self.ip_sources:
             ip = self._fetch_from_source(source)
             if ip:
-                return ip
-        return None
+                return ip, self._source_label(source)
+        return None, None
 
     def _fetch_from_source(self, source):
         """Fetch and validate IP from a single source."""
@@ -60,15 +62,18 @@ class IPChecker:
 
     def check(self):
         """Check IP and update status. Returns (ip, status)."""
-        ip = self.fetch_ip()
+        ip, source = self.fetch_ip()
         with self._lock:
             if ip is None:
                 self.status = "error"
+                self.current_source = None
             elif ip in self.allowed_ips:
                 self.current_ip = ip
+                self.current_source = source
                 self.status = "allowed"
             else:
                 self.current_ip = ip
+                self.current_source = source
                 self.status = "blocked"
             self.last_check = time.time()
         self._notify()
@@ -96,3 +101,8 @@ class IPChecker:
         if len(parts) != 4:
             return False
         return all(p.isdigit() and 0 <= int(p) <= 255 for p in parts)
+
+    @staticmethod
+    def _source_label(source):
+        parsed = urlparse(source)
+        return parsed.netloc or source

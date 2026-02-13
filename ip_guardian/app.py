@@ -51,6 +51,7 @@ class IPGuardianApp(rumps.App):
 
     def _setup_menu(self):
         self.ip_item = rumps.MenuItem("IP: checking...")
+        self.source_item = rumps.MenuItem("Source: checking...")
         self.status_item = rumps.MenuItem("Status: unknown")
         self.autostart_item = rumps.MenuItem(
             "Launch at Login", callback=self._on_toggle_autostart
@@ -58,6 +59,7 @@ class IPGuardianApp(rumps.App):
         self.autostart_item.state = autostart.is_enabled()
         self.menu = [
             self.ip_item,
+            self.source_item,
             self.status_item,
             None,
             rumps.MenuItem("Refresh Now", callback=self._on_refresh),
@@ -92,6 +94,7 @@ class IPGuardianApp(rumps.App):
         self.icon = icon_path
         self.title = None
         self.ip_item.title = f"IP: {ip or 'unknown'}"
+        self.source_item.title = f"Source: {self.checker.current_source or 'unknown'}"
         self.status_item.title = f"Status: {status}"
 
     def _on_timer(self, _):
